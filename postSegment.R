@@ -27,11 +27,11 @@ extract.copy.number <- function(copy.number.data, ID, seq, extract.from, extract
 
   segment.id <- if (grepl("^[0-9]", ID)) paste0('X', ID) else ID
 
-  segment.CN <- select(copy.number.data, segment.id, seqnames, start, end) %>%
+  segment.CN <- select(copy.number.data, all_of(segment.id), seqnames, start, end) %>%
     filter(start >= extract.from,
            end <= extract.to,
            as.character(seqnames) == as.character(seq)) %>%
-    select(segment.id) %>% unlist()
+    select(all_of(segment.id)) %>% unlist()
 }
 
 # This function analyses the obtained copy-number segments, calculates per-variant statistics and summarises the results.
