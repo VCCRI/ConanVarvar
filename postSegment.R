@@ -51,6 +51,9 @@ postSegment <- function(copy.number, segmentation.results, del.threshold, dup.th
   segmentation.results$mu <-t(segments.mu.sigma)[, 1]
   segmentation.results$sigma <-t(segments.mu.sigma)[, 2]
 
+  # Remove segments corresponding to "blank spaces"
+  segmentation.results <- segmentation.results %>% dplyr::filter(!is.na(mu) & !is.na(sigma))
+
   number.of.segments <- dim(segmentation.results)[1]
 
   if (number.of.segments < 30) {
