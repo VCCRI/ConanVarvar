@@ -16,22 +16,22 @@ suppressMessages(library(doParallel))
 suppressMessages(library(foreach))
 suppressMessages(library(GenomicRanges))
 suppressMessages(library(IRanges))
-suppressMessages(library(dplyr))
 suppressMessages(library(tibble))
 suppressMessages(library(magrittr))
 suppressMessages(library(ggplot2))
 suppressMessages(library(openxlsx))
+suppressMessages(library(dplyr))
 
 # This function extracts copy number values for a specified sample, chromosome and positions on the chromosome.
 extract.copy.number <- function(copy.number.data, ID, seq, extract.from, extract.to) {
 
   segment.id <- if (grepl("^[0-9]", ID)) paste0('X', ID) else ID
 
-  segment.CN <- select(copy.number.data, all_of(segment.id), seqnames, start, end) %>%
+  segment.CN <- select(copy.number.data, one_of(segment.id), seqnames, start, end) %>%
     filter(start >= extract.from,
            end <= extract.to,
            as.character(seqnames) == as.character(seq)) %>%
-    select(all_of(segment.id)) %>% unlist()
+    select(one_of(segment.id)) %>% unlist()
 }
 
 # This function analyses the obtained copy-number segments, calculates per-variant statistics and summarises the results.

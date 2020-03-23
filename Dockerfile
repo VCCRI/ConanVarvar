@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y \
     libicu-dev
 RUN apt-get clean
 
-RUN R -e "install.packages(c('BiocManager', 'optparse', 'foreach', 'doParallel', 'openxlsx', 'latex2exp', 'latticeExtra', 'shinythemes', 'shinyjs', 'golem'))"
+RUN R -e "install.packages(c('BiocManager', 'optparse', 'foreach', 'doParallel', 'openxlsx', 'latex2exp', 'latticeExtra', 'shinythemes', 'shinyjs'))"
 RUN R -e "BiocManager::install(c('Rsamtools', 'rCGH', 'CopywriteR', 'fastseg', 'exomeCopy'))"
 
 COPY *.R /
