@@ -86,13 +86,13 @@ segmentation.results <- parSegment(copy.number, bin.size, ncores)
 if (verbose) base::message('Segmentation finished.')
 
 # Analyse the obtained segments and summarise the results
-postSegment(copy.number, segmentation.results,
-            del.threshold, dup.threshold,
-            seg.duplications, seg.duplications.threshold,
-            syndromes,
-            working.dir, output.dir,
-            occurrence.margin, bin.size,
-            verbose, plot.results, ncores)
+base::suppressWarnings(postSegment(copy.number, segmentation.results,
+                                   del.threshold, dup.threshold,
+                                   seg.duplications, seg.duplications.threshold,
+                                   syndromes,
+                                   working.dir, output.dir,
+                                   occurrence.margin, bin.size,
+                                   verbose, plot.results, ncores))
 
 if (verbose) base::message('Finished!')
 base::writeLines(utils::capture.output(utils::sessionInfo()), base::paste0(output.dir, '/sessionInfo.txt'))

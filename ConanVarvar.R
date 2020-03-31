@@ -163,7 +163,7 @@ bin.size <<- opts$binsize
 bin.size.text <<- base::ifelse(bin.size == 0, "0", base::paste0(base::as.character(bin.size / 1e3), "kb"))
 
 reference <<- opts$reference
-seqnames <<- base::readRDS(base::paste0(reference, '.seqnames.rds'))
+seqnames <- base::readRDS(base::paste0(reference, '.seqnames.rds'))
 base::assign(
   x = "format",
   value = opts$format,
