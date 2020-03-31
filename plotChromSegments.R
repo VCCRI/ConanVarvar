@@ -71,7 +71,7 @@ plotChromSegments <- function(sample.id, CN.values, CN.positions, segmentation.r
   # Add extra features to the plot
   plot = plot +
     ggplot2::scale_color_manual(values = colors) +
-    ggplot2::theme(legend.title = ggplo2::element_blank(),
+    ggplot2::theme(legend.title = ggplot2::element_blank(),
                    legend.position = "bottom",
                    legend.text = ggplot2::element_text(size = 13),
                    axis.title = ggplot2::element_text(size = 13),
