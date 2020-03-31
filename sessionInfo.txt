@@ -76,7 +76,7 @@ loaded via a namespace (and not attached):
 [45] stringr_1.4.0
 [46] mime_0.7
 [47] lifecycle_0.1.0
-[48] gtools_3.8.1
+[48] gtools_3.8.2
 [49] XML_3.98-1.20
 [50] org.Hs.eg.db_3.10.0
 [51] zlibbioc_1.32.0
