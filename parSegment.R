@@ -12,33 +12,33 @@
 # <http://www.gnu.org/licenses/>
 
 
-suppressMessages(library(foreach))
-suppressMessages(library(doParallel))
-suppressMessages(library(magrittr))
-suppressMessages(library(fastseg))
-suppressMessages(library(dplyr))
+base::suppressMessages(base::library(foreach))
+base::suppressMessages(base::library(doParallel))
+base::suppressMessages(base::library(magrittr))
+base::suppressMessages(base::library(fastseg))
+base::suppressMessages(base::library(dplyr))
 
 # This function performs segmentation on copy-number data.
 parSegment <- function(copy.number, bin.size, ncores = 4) {
 
-  cl <- makeCluster(ncores)
-  registerDoParallel(cl)
+  cl <- parallel::makeCluster(ncores)
+  doParallel::registerDoParallel(cl)
 
-  segmentation.results = foreach(i = 1:length(copy.number@elementMetadata), .combine = rbind, .packages = c('magrittr', 'fastseg', 'dplyr')) %dopar% {
+  segmentation.results = foreach::foreach(i = 1:base::length(copy.number@elementMetadata), .combine = rbind, .packages = base::c('magrittr', 'fastseg', 'dplyr')) %dopar% {
 
-    avail.chromosomes <- copy.number[,i] %>% as.data.frame() %>%
-      select(-start, -end, -width, -strand) %>% `colnames<-`(c('seqnames','CN')) %>%
-      group_by(seqnames) %>% summarise(na = all(is.na(CN))) %>% filter(na == FALSE) %>%
-      select(seqnames) %>% unlist()
+    avail.chromosomes <- copy.number[,i] %>% base::as.data.frame() %>%
+      dplyr::select(-start, -end, -width, -strand) %>% `colnames<-`(base::c('seqnames','CN')) %>%
+      dplyr::group_by(seqnames) %>% dplyr::summarise(na = base::all(base::is.na(CN))) %>% dplyr::filter(na == FALSE) %>%
+      dplyr::select(seqnames) %>% base::unlist()
 
-    suppressMessages(fastseg(
+    base::suppressMessages(fastseg::fastseg(
       copy.number[,i][copy.number[,i]@seqnames %in% avail.chromosomes],
       alpha = 0.01,
       cyberWeight = 1,
-      minSeg = as.integer(1e6 / bin.size))) %>%
-      as.data.frame()
+      minSeg = base::as.integer(1e6 / bin.size))) %>%
+      base::as.data.frame()
   }
 
-  stopCluster(cl)
-  return(segmentation.results %>% GRanges() %>% sort() %>% as.data.frame())
+  parallel::stopCluster(cl)
+  return(segmentation.results %>% GenomicRanges::GRanges() %>% base::sort() %>% base::as.data.frame())
 }
