@@ -12,45 +12,45 @@
 # <http://www.gnu.org/licenses/>
 
 
-suppressMessages(library(doParallel))
-suppressMessages(library(foreach))
+base::suppressMessages(base::library(doParallel))
+base::suppressMessages(base::library(foreach))
 
-source(paste0(working.dir, '/correctReadcount.R'))
+base::source(base::paste0(working.dir, '/correctReadcount.R'))
 
 # This function corrects raw read counts for GC content and mappability biases and convert them to scaled copy number.
 correct <- function(bins, counts, somes,
                     min.mapq, rough.span, final.span) {
 
-  num.files <- dim(counts)[2]
-  samples <- basename(colnames(counts))
-  copy.number <- matrix(, nrow = length(bins), ncol = 0)
+  num.files <- base::dim(counts)[2]
+  samples <- base::basename(base::colnames(counts))
+  copy.number <- base::matrix(, nrow = base::length(bins), ncol = 0)
   for (i in 1:num.files) {
     bins$reads <- counts[,i]
-    CN.one.sample <- list()
-    for (chrom in 1:length(somes)) {
+    CN.one.sample <- base::list()
+    for (chrom in 1:base::length(somes)) {
       chrom.bins <- bins[bins@seqnames == somes[chrom]]
-      if (all(chrom.bins$reads == 0)) {
-        CN.one.sample <- append(CN.one.sample, rep(NA, length(chrom.bins)))
+      if (base::all(chrom.bins$reads == 0)) {
+        CN.one.sample <- base::append(CN.one.sample, base::rep(NA, base::length(chrom.bins)))
       } else {
         CN.chr <- correctReadcount(x = chrom.bins,
                                    mappability = min.mapq,
                                    rough.span = rough.span,
                                    final.span = final.span,
                                    verbose = FALSE)
-        CN.one.sample <- append(CN.one.sample, CN.chr$copy)
+        CN.one.sample <- base::append(CN.one.sample, CN.chr$copy)
       }
     }
-    if (all(is.na(CN.one.sample))) {
-      stop(paste0(
+    if (base::all(base::is.na(CN.one.sample))) {
+      base::stop(base::paste0(
         "Found a sample with zero read counts in all chromosomes: ",
-        colnames(counts)[i],
+        base::colnames(counts)[i],
         ". Please make sure the reference (hg19/hg38) and format (NCBI/UCSC) are correct."
       ))
     }
-    copy.number <- cbind(copy.number, unlist(CN.one.sample))
+    copy.number <- base::cbind(copy.number, base::unlist(CN.one.sample))
   }
 
-  mcols(bins) <- data.frame(copy.number)
-  colnames(mcols(bins)) <- samples
+  S4Vectors::mcols(bins) <- base::data.frame(copy.number)
+  base::colnames(S4Vectors::mcols(bins)) <- samples
   return(bins)
 }

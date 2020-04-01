@@ -12,20 +12,20 @@
 # <http://www.gnu.org/licenses/>
 
 
-suppressMessages(library(exomeCopy))
-suppressMessages(library(Rsamtools))
-suppressMessages(library(foreach))
-suppressMessages(library(doParallel))
+base::suppressMessages(base::library(exomeCopy))
+base::suppressMessages(base::library(Rsamtools))
+base::suppressMessages(base::library(foreach))
+base::suppressMessages(base::library(doParallel))
 
 # This function counts how many reads fall into each of the pre-specified bin in the input BAM files.
 # Each file is analysed on a separate CPU.
 parCount <- function(bam.files, bins, min.mapq = 0.8,
                      skip.indexing.BAM = FALSE, ncores = 4) {
 
-  cl <- makeCluster(ncores)
-  registerDoParallel(cl)
+  cl <- parallel::makeCluster(ncores)
+  doParallel::registerDoParallel(cl)
 
-  counts <- foreach(i = 1:length(bam.files)) %dopar% {
+  counts <- foreach::foreach(i = 1:base::length(bam.files)) %dopar% {
     if (!skip.indexing.BAM) {Rsamtools::indexBam(bam.files[i])}
     exomeCopy::countBamInGRanges(bam.file = bam.files[i],
                                  granges = bins,
@@ -33,8 +33,8 @@ parCount <- function(bam.files, bins, min.mapq = 0.8,
                                  get.width = TRUE)
   }
 
-  stopCluster(cl)
-  counts <- data.frame(counts)
-  colnames(counts) = bam.files
+  parallel::stopCluster(cl)
+  counts <- base::data.frame(counts)
+  base::colnames(counts) = bam.files
   return(counts)
 }

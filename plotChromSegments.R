@@ -12,12 +12,11 @@
 # See the GNU General Public License for more details <http://www.gnu.org/licenses/>.
 
 
-suppressMessages(library(ggplot2))
-suppressMessages(library(latex2exp))
-suppressMessages(library(IRanges))
-suppressMessages(library(GenomicRanges))
-suppressMessages(library(magrittr))
-suppressMessages(library(dplyr))
+base::suppressMessages(base::library(ggplot2))
+base::suppressMessages(base::library(IRanges))
+base::suppressMessages(base::library(GenomicRanges))
+base::suppressMessages(base::library(magrittr))
+base::suppressMessages(base::library(dplyr))
 
 # This function generates per-chromosome plots.
 plotChromSegments <- function(sample.id, CN.values, CN.positions, segmentation.results, potential.CNVs = NULL,
@@ -26,38 +25,38 @@ plotChromSegments <- function(sample.id, CN.values, CN.positions, segmentation.r
   # List of segmental duplications for chrom with the length above the user-specified threshold
   seg.dups = seg.duplications[seg.duplications@seqnames == chr & seg.duplications@ranges@width > seg.duplications.threshold]
 
-  segments = data.frame(
+  segments = base::data.frame(
     x = segmentation.results@ranges@start,
     xend = segmentation.results@ranges@start + segmentation.results@ranges@width - 1,
     y = segmentation.results$seg.mean,
     yend = segmentation.results$seg.mean)
 
-  CN.data = data.frame(value = CN.values, position = CN.positions)
+  CN.data = base::data.frame(value = CN.values, position = CN.positions)
 
   # Indicate which copy number values are part of a segmental duplication
   CN.data$type = 'Normal'
-  CN.data$type[sapply(CN.data$position,
-                      function(pos) GRanges(chr, IRanges(pos, pos)) %>%
-                                      subsetByOverlaps(seg.dups) %>% length() > 0)] = 'Part of Segmental Duplication'
+  CN.data$type[base::sapply(CN.data$position,
+                            function(pos) GenomicRanges::GRanges(chr, IRanges::IRanges(pos, pos)) %>%
+                                            IRanges::subsetByOverlaps(seg.dups) %>% base::length() > 0)] = 'Part of Segmental Duplication'
 
-  colors = setNames(c("#9999CC", "black", "#07FDB5", "#FD074F"),
-                    c('Part of Segmental Duplication', 'Normal', 'DUPLICATION', 'DELETION'))
+  colors = stats::setNames(base::c("#9999CC", "black", "#07FDB5", "#FD074F"),
+                           base::c('Part of Segmental Duplication', 'Normal', 'DUPLICATION', 'DELETION'))
 
   # Plot copy number values
-  plot = ggplot(CN.data, aes(x = position, y = value)) +
-    geom_point(aes(colour = type)) +
-    geom_segment(data = segments,
-                 aes(x = x, y = y, xend = xend, yend = yend),
-                 color = '#77686a', size = 2) +
-    ggtitle(paste0(sample.id, ', chromosome ', chr)) +
-    ylab(TeX('Copy Number $\\log_2$ Ratio')) +
-    xlab('Chromosome Position, Mbp') +
-    scale_x_continuous(labels = function(x) x / 1e6)
+  plot = ggplot2::ggplot(CN.data, ggplot2::aes(x = position, y = value)) +
+    ggplot2::geom_point(ggplot2::aes(colour = type)) +
+    ggplot2::geom_segment(data = segments,
+                          ggplot2::aes(x = x, y = y, xend = xend, yend = yend),
+                          color = '#77686a', size = 2) +
+    ggplot2::ggtitle(base::paste0(sample.id, ', chromosome ', chr)) +
+    ggplot2::ylab('Copy Number log2 Mean Ratio') +
+    ggplot2::xlab('Chromosome Position, Mbp') +
+    ggplot2::scale_x_continuous(labels = function(x) x / 1e6)
 
   # If there are any deletions/duplications, add them to the plot
   if (!missing(potential.CNVs)) {
 
-    segments = data.frame(
+    segments = base::data.frame(
       x = potential.CNVs@ranges@start,
       xend = potential.CNVs@ranges@start + potential.CNVs@ranges@width - 1,
       y = potential.CNVs$seg.mean,
@@ -65,19 +64,19 @@ plotChromSegments <- function(sample.id, CN.values, CN.positions, segmentation.r
       call = potential.CNVs$class)
 
     plot = plot +
-      geom_segment(data = segments,
-                   aes(x = x, y = y, xend = xend, yend = yend, colour = call), size = 1)
+      ggplot2::geom_segment(data = segments,
+                            ggplot2::aes(x = x, y = y, xend = xend, yend = yend, colour = call), size = 1)
   }
 
   # Add extra features to the plot
   plot = plot +
-    scale_color_manual(values = colors) +
-    theme(legend.title = element_blank(),
-          legend.position = "bottom",
-          legend.text = element_text(size = 13),
-          axis.title = element_text(size = 13),
-          axis.text.x = element_text(size = 12),
-          axis.text.y = element_text(size = 12),
-          plot.title = element_text(size = 14))
+    ggplot2::scale_color_manual(values = colors) +
+    ggplot2::theme(legend.title = ggplot2::element_blank(),
+                   legend.position = "bottom",
+                   legend.text = ggplot2::element_text(size = 13),
+                   axis.title = ggplot2::element_text(size = 13),
+                   axis.text.x = ggplot2::element_text(size = 12),
+                   axis.text.y = ggplot2::element_text(size = 12),
+                   plot.title = ggplot2::element_text(size = 14))
   print(plot)
 }

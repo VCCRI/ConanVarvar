@@ -4,18 +4,20 @@
 This program is a versatile tool for detecting copy number variations (CNVs) from BAM files. The tool was designed specifically for the detection of *large* (>1 Mb) CNVs in batches of multiple samples.
 
 ## Features
-* Efficient multi-sample CNV calling with in-built parallelisation and read counts storing.
-* Up to 12 times less false positives than in alternative read-depth tools at low resolutions, with robust GC and mappability correction and additional filtering of false positives based on p-values, inter-batch frequency and overlaps with segmental duplications.
+* Efficient joint calling of CNVs with in-built parallelisation and read counts storing.
+* Up to several times less false positives compared to other CNV callers.
+* Robust GC and mappability correction and additional filtering of false positives based on variants' p-values, their occurrence, overlaps with segmental duplications and associated syndromes.
 * Choose between the *Shiny* graphical user interface (GUI) or the familiar command-line interface (CLI).
-* Known syndromes associated with a particular variation will be highlighted.
 * Optional on-the-fly sorting and indexing of input BAM files.
 * Optional visualisation.
 * No FASTA reference files required.
 
+<img src="GUI.png" width=800>
+
 ## How to use
 
 ### Installation
-`docker pull mgud/conanvarvar`
+`docker pull mgud/conanvarvar:latest`
 
 ### Input files
 The program can accept both full BAM files (i.e. containing some coverage in all chromosomes) and single-chromosome BAMs.
@@ -26,9 +28,7 @@ To extract a chromosome of interest (e.g. chromosome 7) from a full BAM file usi
 
 Assuming your BAM files are stored in `/Users/user/BAM_files` on the host machine, you can run `docker run -it --rm -v /Users/user/BAM_files:/data -e GUI=true -p 80:3838 mgud/conanvarvar` to launch the GUI of ConanVarvar. To open the GUI in a web browser, go to <http://127.0.0.1>. Inside the GUI, the new path to your BAM files is now simply `/data`.
 
-Alternatively, the command-line interface can be utilised: `docker run -it --rm -v /Users/user/BAM_files:/data mgud/conanvarvar --bamdir=/data`. To see all available options, run `docker run mgud/conanvarvar`.
-
-If you also have a file with read counts from previous runs of ConanVarvar, you can provide a path to it to speed up the processing.
+Alternatively, the command-line interface can be utilised: `docker run -it --rm -v /Users/user/Desktop/data:/data mgud/conanvarvar --bamdir=/data --outdir=/data/output`. To see all available options, run `docker run mgud/conanvarvar --help`.
 
 Please note that by default Docker uses only half of CPUs available on the host machine. Also, you can mount multiple folders (e.g. one folder for input files and one for the output) by using multiple `-v` arguments in `docker run`.
 
@@ -38,15 +38,14 @@ The program outputs a spreadsheet with potential CNVs together with optional per
 <img src="Example.png" width=800>
 <img src="Example_variations.png" width=850>
 
-Entries in the spreadsheet are presorted in the decreasing order of their significance. That is, the user is advised to carefully look through the first few potential CNVs from the spreadsheet, especially the ones associated with some known CNV syndromes (from the [DECIPHER](https://decipher.sanger.ac.uk/disorders#syndromes/overview "DECIPHER CNV Syndrome List") and [OMIM](https://omim.org "OMIM homepage") databases), and cross-check these with the plots.
+Entries in the spreadsheet are presorted in the decreasing order of their significance. That is, the user is advised to carefully look through the first few potential CNVs from the spreadsheet, especially the ones associated with some known CNV syndromes (from the [DECIPHER](https://decipher.sanger.ac.uk/disorders#syndromes/overview "DECIPHER CNV Syndrome List") and [OMIM](https://omim.org "OMIM homepage") databases), and cross-check with the plots.
 
 ## Performance
 
-| CPUs | RAM per CPU | Input BAM files | Parameters | Time (from read counts to plots generation) |
-| :------------- | :------------- | :------------- | :------------- | :-------------: |
-| *n* | 32 GB | 1-*n*, full (70-100 GB), sorted and indexed | Default | **30-45 mins** |
-| 8 | 32 GB | 28, full (70-100 GB), sorted and indexed | Default | **~2.5 hr** |
-| 8 | 16 GB | 1, one chromosome (4-7 GB), sorted and indexed | Default | **< 15 mins** |
+| CPUs | RAM | Input BAM files | Parameters | Pre-counts | Plots | Time |
+| :------------- | :------------- | :------------- | :------------- | :-------------- | :-------------- | :-------------: |
+| 4 | 128 GB | 1, full (64 GB), sorted and indexed | Default | No | No | **20-25 mins** |
+| 4 | 128 GB | 1, one chromosome, sorted and indexed | Default | No | No | **1-2 mins** |
 
 ## Detailed pipeline
 
@@ -60,7 +59,7 @@ Entries in the spreadsheet are presorted in the decreasing order of their signif
 
 5. Perform segmentation on the copy number values using `fastseg`.
 
-6. Analyse the obtained segments; separate normal segments from potential CNVs using thresholds or clustering; calculate p-values using bootstrap; calculate other statistics for each potential CNV.
+6. Analyse the obtained segments; separate normal segments from potential CNVs using thresholds and clustering; calculate p-values using bootstrap; calculate other statistics for each potential CNV.
 
 7. Plot the results (optional) and generate a spreadsheet summarising the information about the identified CNVs.
 
